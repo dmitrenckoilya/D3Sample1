@@ -1,0 +1,37 @@
+{
+  "name": "Components",
+  "authors": [
+    "hannesoud"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.8.1",
+    "ace-builds": "~1.2.0",
+    "emojilib": "~1.0.0",
+    "paper-styles": "PolymerElements/paper-styles#^1.0.0",
+    "paper-input": "PolymerElements/paper-input#^1.0.0",
+    "paper-menu-button": "PolymerElements/paper-menu-button#^1.0.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.0.0",
+    "iron-pages": "PolymerElements/iron-pages#^1.0.0",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.0"
+  },
+  "devDependencies": {
+    "bootstrap": "~3.3.2",
+    "iron-component-page": "PolymerElements/iron-component-page#^1.1.6",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.2.3",
+    "paper-styles": "PolymerElements/paper-styles#^1.1.4",
+    "test-fixture": "PolymerElements/test-fixture#^1.1.1",
+    "web-component-tester": "^4.3.0"
+  }
+}

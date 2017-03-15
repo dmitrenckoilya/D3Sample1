@@ -1,0 +1,32 @@
+{
+  "name": "social-button",
+  "authors": [
+    "1000ch <shogo.sensui@gmail.com>"
+  ],
+  "description": "Social Buttons as Web Components",
+  "main": "social-button.html",
+  "keywords": [
+    "web-components",
+    "WebComponents"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/1000ch/social-button",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "0.3.0",
+  "_release": "0.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.0",
+    "commit": "2db6cdce4fffd98b9c42f6f7f58978030398f8cc"
+  },
+  "_source": "https://github.com/1000ch/social-button.git",
+  "_target": "^0.3.0",
+  "_originalSource": "social-button",
+  "_direct": true
+}
