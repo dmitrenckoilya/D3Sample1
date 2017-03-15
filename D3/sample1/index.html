@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <link rel="stylesheet" type="text/css" href="./css/c3.min.css">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+  <title>My D3.js Sample</title>
+</head>
+
+<body>
+  <div id="main">
+  
+    <div id="network"></div>
+    <div id="chart">
+      <div id="chart1-container">
+        <div id="chart1"></div>
+      </div>
+      <div id="chart2-container">
+        <div id="chart2"></div>
+      </div>
+      <div id="link-container">
+        <a id="nextlink" href="#">Center network here >>></a>
+      </div>
+    </div>
+    <div id="footer">
+      Something will be here.
+    </div>
+  </div>
+  
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="./js/c3.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+  <script>
+
+  var colorTable = {
+    "edge-type-1": "#f29300",
+    "edge-type-2": "#000",
+    "edge-type-3": "#00c6ff",
+    "edge-type-4": "#00c600"
+  };
+
+  var totalData = [];           // entire data structure
+  var nodeInfoData = [];
+  var nodes = [];               // nodes array
+  var links = [];               // links array
+
+  var width = window.innerWidth,
+      height = window.innerHeight;
+
+  var forceWidth  = width* 0.65,
+      forceHeight = height * 0.7,
+      donutWidth  = width * 0.3;
+      donutHeight  = width * 0.3; 
+
+  var minRadius = 6, maxRadius = 12;
+
+  var maxWeight = 1;
+
+  /* creating force layout */
+  var force = d3.layout.force()
+      .charge(-300)
+      .linkDistance(60)
+      .size([forceWidth, forceHeight]);
+
+  var svgNetwork = d3.select("#network").append("svg")
+      .attr("width", '100%')
+      .attr("height", '100%');
+
+  // var svgDonut = d3.select("#chart").append("svg")
+  //     .attr("width", donutWidth)
+  //     .attr("height", donutHeight);
+
+  // Per-type markers, as they don't inherit styles.
+  svgNetwork.append("defs").selectAll("marker")
+      .data(["edge-type-1", "edge-type-2", "edge-type-3", "edge-type-4"])
+    .enter().append("marker")
+      .attr("id", function(d) { return d; })
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 15)
+      .attr("refY", -1.5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+    .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("fill", function(d) {
+        return colorTable[d];
+      });
+
+  svgNetwork.append("g")
+      .attr("class", "path");
+
+  svgNetwork.append("g")
+      .attr("class", "circle");
+
+  svgNetwork.append("g")
+      .attr("class", "text");
+
+  function transform(d) {
+    return "translate(" + d.x + "," + d.y + ")";
+  }
+
+  function linkArc(d) {
+    var dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy);
+    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+  }
+
+  /* Update the network diagram */
+  function updateNetwork(filterYear) {
+    // restore original data
+
+    console.log('totalData');
+    console.log(totalData);
+ 
+    links = [];
+
+    for(var i = 0, iLen = totalData.length; i < iLen; i++) {
+      if(filterYear == 'all') {
+        links.push({
+          source: totalData[i].source,
+          target: totalData[i].target,
+          interactionType: totalData[i].interactionType
+        });  
+      } else if(totalData[i].year == filterYear){
+        links.push({
+          source: totalData[i].source,
+          target: totalData[i].target,
+          interactionType: totalData[i].interactionType
+        });          
+      }
+    }
+
+    nodes = [];
+
+    console.log('links');
+    console.log(links);
+
+    links.forEach(function(link) {
+      link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+      link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+    });
+
+    console.log('nodes');
+    console.log(nodes);
+
+    // calculate the nodes coordinates
+    force
+      .nodes(d3.values(nodes))
+      .links(links)
+      .start();
+
+    var k = 0;
+    while ((force.alpha() > 1e-2) && (k < 50)) {
+        force.tick(),
+        k = k + 1;
+    }
+
+    maxWeight = Math.max.apply(Math, force.nodes().map(function(o){return o.weight;}));
+
+    console.log('maxWeight = ', maxWeight);
+
+    var circle = svgNetwork.select('g.circle').selectAll("circle")
+        .data(force.nodes());
+
+    console.log('nodes');
+    console.log(nodes);
+
+    console.log('force nodes');
+    console.log(force.nodes());
+
+    circle.enter().append("circle");
+
+    circle
+        .attr("class", function(d) {
+          return "node-type-" + nodeInfoData[d.name].NodeType;
+        })
+        .attr("r", function(d) {
+          return minRadius + (maxRadius - minRadius) * d.weight / maxWeight;
+        })
+        .on('click', function(d) {
+          // draw donut chart
+          var dataColumns1 = [], 
+              dataColumns2 = [], 
+              sum1 = 0, 
+              sum2 = 0;
+
+          var nodeInfo = nodeInfoData[d.name];
+
+          console.log('nodeInfo');
+          console.log(nodeInfo);
+
+          // generate columns
+          for(var i = 1; i <= 4; i++) {
+            var columnName1 = "Attribute+AF8-" + i;
+            var columnName2 = "Attribute+AF8-" + (4 + i);
+            dataColumns1.push([ columnName1, nodeInfo[columnName1] ]);
+            dataColumns2.push([ columnName2, nodeInfo[columnName2] ]);
+
+            sum1 += parseInt(nodeInfo[columnName1]);
+            sum2 += parseInt(nodeInfo[columnName2]);
+          }
+
+          var chart1 = c3.generate({
+            bindto: '#chart1',
+            data: {
+              columns: dataColumns1,
+              type : 'donut',
+              onmouseover: function (d, i) { console.log("onmouseover", d, i, this); },
+              onmouseout: function (d, i) { console.log("onmouseout", d, i, this); },
+              onclick: function (d, i) { console.log("onclick", d, i, this); },
+              order: null // set null to disable sort of data. desc is the default.
+            },
+            axis: {
+              x: {
+                label: 'Sepal.Width'
+              },
+              y: {
+                label: 'Petal.Width'
+              }
+            },
+            donut: {
+              label: {
+                format: function (d, ratio) { if(ratio < 100) return ""; }
+              },
+              title: sum1,
+              width: 30
+            }
+          });
+
+          var chart2 = c3.generate({
+            bindto: '#chart2',
+            data: {
+              columns: dataColumns2,
+              type : 'donut',
+              onmouseover: function (d, i) { console.log("onmouseover", d, i, this); },
+              onmouseout: function (d, i) { console.log("onmouseout", d, i, this); },
+              onclick: function (d, i) { console.log("onclick", d, i, this); },
+              order: null // set null to disable sort of data. desc is the default.
+            },
+            axis: {
+              x: {
+                label: 'Sepal.Width'
+              },
+              y: {
+                label: 'Petal.Width'
+              }
+            },
+            donut: {
+              label: {
+                format: function (d, ratio) { if(ratio < 100) return ""; }
+              },
+              title: sum2,
+              width: 30
+            }
+          });
+
+          // generate link
+
+          var linkId = d.name.replace(' ', '_');
+          var visible = (nodeInfo.NodeType == '2') ? "visible" : "hidden";
+
+          $("a#nextlink").attr('onclick', 'javascript:loadData("' + linkId + '")')
+                        .css("visibility", visible);
+
+        })
+        .call(force.drag);
+
+    circle.exit().remove();
+
+    var text = svgNetwork.select('g.text').selectAll("text")
+        .data(force.nodes());
+
+    text.enter().append("text");
+
+    text.attr("class", "label")
+        .attr("x", 8)
+        .attr("y", ".31em")
+        .text(function(d) { return d.name; });
+
+    text.exit().remove();
+
+    var path = svgNetwork.select('g.path').selectAll("path")
+        .data(force.links());
+
+    path.enter().append("path");
+
+    path.transition()
+        .attr("class", function(d) { return "link " + "edge-type-" + d.interactionType; })
+        .attr("marker-end", function(d) { return "url(#" + "edge-type-" + d.interactionType + ")"; });
+
+    path.exit().remove();
+
+    // when mouse dragging, change the links position.
+    force.on("tick", function() {
+      path.attr("d", linkArc);
+      circle.attr("transform", transform);
+      text.attr("transform", transform);
+    });
+  }
+
+  d3.select(window)
+    .on("resize", function() {
+
+      w = window.innerWidth;
+      h = window.innerHeight;
+
+      force
+        .size([width * 0.6, height * 0.7]);
+
+      updateNetwork('all');
+  });
+
+  var getUrlParameter = function getUrlParameter(sParam) {
+      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+
+      for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+
+          if (sParameterName[0] === sParam) {
+              return sParameterName[1] === undefined ? true : sParameterName[1];
+          }
+      }
+  };
+
+  function loadData(dataId) {
+    // http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
+    d3.tsv(dataId + ".csv?" + $.now(), function(data) {
+      totalData = data;
+      console.log('totalData');
+      console.log(totalData);
+
+      d3.tsv(dataId + "_node_info.csv?" + $.now(), function(data) {
+        nodeInfoData = [];
+        _.each(data, function(d) {
+          nodeInfoData[d.NodeID] = d;
+        })
+        
+        console.log('node info data');
+        console.log(nodeInfoData);
+
+        updateNetwork('all');
+      });
+    });
+  }
+
+  loadData('Yuki_Motoya');
+
+  </script>
+</body>

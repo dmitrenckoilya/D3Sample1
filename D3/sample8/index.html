@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>My D3.js Sample</title>
+<style>
+
+body {
+    font: 10px sans-serif;
+}
+.link {
+    fill: none;
+    stroke: #000;
+}
+.sibling {
+    fill: none;
+    stroke: blue;
+}
+.border {
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: #aaa;
+}
+.node {
+    stroke: red;
+    fill:white;
+}
+
+</style>
+<body>
+  <script src="d3.v3.min.js"></script>
+  <script src="queue.min.js"></script>
+  <div id="graph"></div>
+  
+  <script>
+
+  var margin = {top: 10, right: 10, bottom: 10, left: 10},
+    width = 420
+    height = 300;
+  
+  var root = {};
+  var allNodes = [];
+  var group = [];
+
+  queue().defer(d3.json, "group.json")
+    .defer(d3.json, "data.json")
+    .await(dataLoading);
+  
+  function dataLoading(error, json1, json2){
+    
+    group = json1.group;
+    root = json2;   
+    allNodes = flatten(root);
+    
+    //make an SVG
+    var svg = d3.select("#graph").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    svg.append("defs").selectAll("marker")
+      .data("arrow")
+      .enter().append("marker")
+      .attr("id", "arrow")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 15)
+      .attr("refY", -1.5)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5");
+  
+    var xscale = d3.scale.linear()
+        .domain([0, allNodes.length])
+        .range([30, width - 30]);
+    var yscale = d3.scale.linear()
+        .domain([0, group.length])
+        .range([0, height]);
+        
+    var bkg = svg.append('g').attr('id','groups').selectAll('rect')
+        .data(group)
+        .enter()
+        .append('rect')
+        .attr('height', height/group.length - 2)        
+        .attr('width', width)
+        .attr('id', function(d){ return d.id})
+        .attr({'x':0, 'y':function(d, i){ return yscale(i) + 2; }})       
+        .style('fill', function(d){ return d.color; })
+        .style('stroke', 'black');
+    
+    var grouptext = d3.select('#groups')
+        .selectAll('text')
+        .data(group)
+        .enter()
+        .append('text')
+        .attr({'x':5,'y':function(d,i){ return yscale(i)+35; }})
+        .text(function(d){ return d.id; })
+        .style({'fill':function(d){ return d.id; },'font-size':'14px'});
+    
+    // Compute the layout.
+    var tree = d3.layout.tree().size([width, height]),
+      nodes = tree.nodes(root),
+      links = tree.links(nodes);
+    
+    var nodes = svg.selectAll(".node")
+      .data(nodes)
+      .enter();
+    
+    nodes.append("rect")
+      .attr("class", "node")
+      .attr("height", 20)
+      .attr("width", 20)
+      .attr("id", function (d) {
+        return d.id;
+      })
+      .attr("x", function (d, i) {
+        
+        return d.x = xscale(i)+ 20;
+      })
+      .attr("y", function (d) {
+        var groupIdx = -1;
+        
+        for(var i = 0; i < group.length ; i++)
+        {
+          var str1 = d.color;
+          var str2 = group[i].id;
+          
+          if(str1.toLowerCase() == str2.toLowerCase())
+          {
+            groupIdx = i;
+            break;
+          }
+        }
+        console.log("idx" + groupIdx);
+        return d.y = yscale(groupIdx) + (height/group.length)/2;
+        //return d.y - 10;
+      })
+      .style('fill', function(d){ return d.color; });
+    
+    // Create the node text label.
+    nodes.append("text")
+      .text(function (d) {return d.text;})
+      .attr("x", function (d) { return d.x + 5; })
+      .attr("y", function (d) { return d.y + 13; });
+      
+    // Create the link lines.
+    svg.selectAll(".link")
+      .data(links)
+      .enter().append("path")
+      .attr("class", "link")
+      .attr("d", linkArc)
+      .attr("marker-end", "url(#arrow)");
+  }
+  
+  /*To make the nodes in flat mode.
+  This gets all teh nodes in same level*/
+  function flatten(root) {
+    var n = [],
+      i = 0;
+
+    function recurse(node) {
+      if (node.children) node.children.forEach(recurse);
+      if (!node.id) node.id = ++i;
+      n.push(node);
+    }
+    
+    recurse(root);
+    return n;
+  }
+
+  //This draws the lines between nodes.
+  function lineDraw(d, i) {
+
+    var diff = d.source.y - d.target.y;
+    //0.40 defines the point from where you need the line to break out change is as per your choice.
+    var ny = d.target.y + 10 + (diff - i*3) * 0.20;
+    var tX, tY, sX, sY, nY, nX, diff;
+    
+    if(d.target.group == d.source.group)
+    {
+      console.log("same");
+      // Same Group
+      if(d.target.x > d.source.x){
+        tX = d.target.x;
+        sX = d.source.x + 20;
+        sY = d.source.y + 10;
+        tY = d.target.y + 10;
+      }
+      if(d.target.x < d.source.x){
+        tX = d.target.x + 20;
+        sX = d.source.x;
+        sY = d.source.y + 10;
+        tY = d.target.y + 10;
+      }
+      
+      linedata = [
+        { x: tX, y: tY },
+        { x: sX, y: sY}
+      ];
+    }
+    if(d.target.group > d.source.group)
+    {
+      console.log(">");
+      sX = d.source.x + 10;
+      tX = d.target.x + 10;
+      sY = d.source.y + 20;
+      tY = d.target.y;
+      
+      linedata = [
+        { x: tX, y: tY },
+        {
+          x: tX,
+          y: ny
+        },
+        { x: sX, y: sY}
+      ];
+      
+    }
+    if(d.target.group < d.source.group)
+    {
+      console.log("<");
+      sX = d.source.x + 10;
+      tX = d.target.x;
+      sY = d.source.y;
+      tY = d.target.y + 10;
+      
+      linedata = [
+        { x: tX, y: tY },
+        { x: sX, y: sY}
+      ];
+      
+    }
+    
+    
+      
+    
+
+    var fun = d3.svg.line().x(function (d) {
+      return d.x;
+    }).y(function (d) {
+      return d.y;
+    }).interpolate("step-after");
+    
+    return fun(linedata);
+  }
+  
+  function linkArc(d) {
+    var tX, tY, sX, sY;
+    
+    if(d.target.group == d.source.group)
+    {
+      console.log("same");
+      if(d.target.x > d.source.x){
+        tX = d.target.x;
+        sX = d.source.x + 20;
+        sY = d.source.y + 10;
+        tY = d.target.y + 10;
+      }
+      if(d.target.x < d.source.x){
+        tX = d.target.x + 20;
+        sX = d.source.x;
+        sY = d.source.y + 10;
+        tY = d.target.y + 10;
+      }     
+    }
+    if(d.target.group > d.source.group)
+    {
+      console.log(">");
+      sX = d.source.x + 10;
+      tX = d.target.x + 10;
+      sY = d.source.y + 20;
+      tY = d.target.y;      
+    }
+    if(d.target.group < d.source.group)
+    {
+      console.log("<");
+      sX = d.source.x + 10;
+      tX = d.target.x;
+      sY = d.source.y;
+      tY = d.target.y + 10;     
+    }
+    
+    //var dx = d.target.x - d.source.x,
+    //  dy = d.target.y - d.source.y,
+    //  dr = Math.sqrt(dx * dx + dy * dy);
+    var dx = tX - sX,
+      dy = tY - sY,
+      dr = Math.sqrt(dx * dx + dy * dy);
+      
+    return "M" + sX + "," + sY + "A" + dr + "," + dr + " 0 0,1 " + tX + "," + tY;
+  }
+
+</script>

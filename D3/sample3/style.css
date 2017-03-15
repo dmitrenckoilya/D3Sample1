@@ -1,0 +1,41 @@
+
+
+circle.dashed {
+  stroke-dasharray: 20,10;
+}
+
+line {
+  stroke:rgb(0,0,0);
+  stroke-width:1;
+}
+
+circle.spot
+{
+  stroke: black; 
+  stroke-width: 1; 
+  fill: lightblue; 
+  opacity: 1;
+}
+
+circle.selected
+{
+  stroke: black; 
+  stroke-width: 1; 
+  fill: magenta; 
+  opacity: 1;
+}
+
+circle.spot:hover
+{
+  stroke-width: 2;
+  fill: yellow;
+  opacity: 1;
+}
+
+text.taste {
+  fill:black;
+}
+
+text.food {
+  fill:orange;
+}

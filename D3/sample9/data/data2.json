@@ -1,0 +1,67 @@
+{
+	"bucket_2": {
+		"nodes": [
+			[{"name": "node 25", "id": 25}],
+			[{"name": "node 26", "id": 26}],
+			[{"name": "node 27", "id": 27}],
+			[{"name": "node 28", "id": 28}],
+			[{"name": "node 29", "id": 29}],
+			[{"name": "node 30", "id": 30}],
+			[{"name": "node 31", "id": 31}],
+			[{"name": "node 32", "id": 32}],
+			[{"name": "node 33", "id": 33}],
+			[{"name": "node 34", "id": 34},{"name": "node 35", "id": 35},{"name": "node 36", "id": 36},{"name": "node 37", "id": 37}],
+			[{"name": "node 38", "id": 38},{"name": "node 39", "id": 39},{"name": "node 40", "id": 40},{"name": "node 41", "id": 41},{"name": "node 42", "id": 42}],
+			[{"name": "node 43", "id": 43},{"name": "node 44", "id": 44},{"name": "node 45", "id": 45}],
+			[{"name": "node 46", "id": 46},{"name": "node 47", "id": 47},{"name": "node 48", "id": 48},{"name": "node 49", "id": 49}]
+		],
+		"name": "Bucket 2", "language": "en"
+	},
+	"bucket_1": {
+		"nodes": [
+			[{"name": "node 0", "id": 0}],
+			[{"name": "node 1", "id": 1}],
+			[{"name": "node 2", "id": 2}],
+			[{"name": "node 3", "id": 3}],
+			[{"name": "node 4", "id": 4}],
+			[{"name": "node 5", "id": 5}],
+			[{"name": "node 6", "id": 6}],
+			[{"name": "node 7", "id": 7}],
+			[{"name": "node 8", "id": 8}],
+			[{"name": "node 9", "id": 9},{"name": "node 10", "id": 10},{"name": "node 11", "id": 11}],
+			[{"name": "node 12", "id": 12},{"name": "node 13", "id": 13},{"name": "node 14", "id": 14},{"name": "node 15", "id": 15},{"name": "node 16", "id": 16}],
+			[{"name": "node 17", "id": 17}],
+			[{"name": "node 18", "id": 18}],
+			[{"name": "node 19", "id": 19},{"name": "node 20", "id": 20}],
+			[{"name": "node 21", "id": 21},{"name": "node 22", "id": 22},{"name": "node 23", "id": 23},{"name": "node 24", "id": 24}]
+		],
+		"name": "Bucket 1", "language": "ru"
+	},
+	"links": [
+		{"source": 0, "targetBucket": "Bucket 1", "target": 25, "sourceBucket": "Bucket 1"},
+		{"source": 1, "targetBucket": "Bucket 1", "target": 26, "sourceBucket": "Bucket 1"},
+		{"source": 2, "targetBucket": "Bucket 1", "target": 27, "sourceBucket": "Bucket 1"},
+		{"source": 3, "targetBucket": "Bucket 1", "target": 28, "sourceBucket": "Bucket 1"},
+		{"source": 4, "targetBucket": "Bucket 1", "target": 29, "sourceBucket": "Bucket 1"},
+		{"source": 5, "targetBucket": "Bucket 1", "target": 30, "sourceBucket": "Bucket 1"},
+		{"source": 6, "targetBucket": "Bucket 1", "target": 31, "sourceBucket": "Bucket 1"},
+		{"source": 7, "targetBucket": "Bucket 1", "target": 32, "sourceBucket": "Bucket 1"},
+		{"source": 8, "targetBucket": "Bucket 1", "target": 33, "sourceBucket": "Bucket 1"},
+		{"source": 9, "targetBucket": "Bucket 1", "target": 34, "sourceBucket": "Bucket 1"},
+		{"source": 10, "targetBucket": "Bucket 1", "target": 35, "sourceBucket": "Bucket 1"},
+		{"source": 11, "targetBucket": "Bucket 1", "target": 36, "sourceBucket": "Bucket 1"},
+		{"source": 12, "targetBucket": "Bucket 1", "target": 37, "sourceBucket": "Bucket 1"},
+		{"source": 13, "targetBucket": "Bucket 1", "target": 38, "sourceBucket": "Bucket 1"},
+		{"source": 14, "targetBucket": "Bucket 1", "target": 39, "sourceBucket": "Bucket 1"},
+		{"source": 15, "targetBucket": "Bucket 1", "target": 40, "sourceBucket": "Bucket 1"},
+		{"source": 16, "targetBucket": "Bucket 1", "target": 41, "sourceBucket": "Bucket 1"},
+		{"source": 17, "targetBucket": "Bucket 1", "target": 42, "sourceBucket": "Bucket 1"},
+		{"source": 18, "targetBucket": "Bucket 1", "target": 43, "sourceBucket": "Bucket 1"},
+		{"source": 19, "targetBucket": "Bucket 1", "target": 44, "sourceBucket": "Bucket 1"},
+		{"source": 20, "targetBucket": "Bucket 1", "target": 45, "sourceBucket": "Bucket 1"},
+		{"source": 21, "targetBucket": "Bucket 1", "target": 46, "sourceBucket": "Bucket 1"},
+		{"source": 22, "targetBucket": "Bucket 1", "target": 47, "sourceBucket": "Bucket 1"},
+		{"source": 23, "targetBucket": "Bucket 1", "target": 48, "sourceBucket": "Bucket 1"},
+		{"source": 24, "targetBucket": "Bucket 1", "target": 49, "sourceBucket": "Bucket 1"}
+	]
+}

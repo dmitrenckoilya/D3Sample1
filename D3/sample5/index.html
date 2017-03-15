@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>My D3.js Sample</title>
+  <style>
+  body {
+    font: 10px sans-serif;
+  }
+  .x-axis path, .y-axis path,
+  .x-axis line, .y-axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  .phone text {
+    text-anchor: end;
+  }
+
+  .node circle {
+    fill: #FF0;
+    stroke:gray;
+    stroke-width: 2px;
+  }
+
+  .node text { font: 12px sans-serif; color: #467;}
+
+  .link {
+    fill: none;
+    stroke: #DDD;
+    stroke-width: 2px;
+  }
+
+</style>
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+  <body>
+    
+    <script type="text/javascript">
+      // Pie Graph Height, Width, Radius
+      var w = 300, h = 300, r = Math.min(w, h) / 2;
+
+      //Define variable and object for Graph
+      var color = d3.scale.ordinal().range(["#eebedc", "#00a1e0", "#799c4b", "#ff8400", "#06ff00", "#ff3600"]);
+      var arc = d3.svg.arc().outerRadius(r - 10).innerRadius(0);
+      var pie = d3.layout.pie().sort(null).value(function(d) { return d.total; });
+      var svg = d3.select("body").append("svg")
+          .attr("width", w)
+          .attr("height", h)
+        .append("g")
+          .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
+
+      // Load Data from csv file for Graph
+      d3.csv("pie.csv", function(error, data) {
+
+        data.forEach(function(d) {
+          d.total = d.Amount*1; // Convert From String to Number Type
+        });
+
+        // Draw Arc for Each Data item
+        var g = svg.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+        // Draw Closely Range for each Data Item    
+        g.append("path")
+            .attr("d", arc)
+            .style("fill", function(d) { return color(d.data.Phone); });
+
+        // Add Text for mark of Data Item    
+        g.append("text")
+            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+            .attr("dy", ".35em")
+            .style("text-anchor", "middle")
+            .text(function(d) { return d.data.Phone; });
+
+      });
+    </script>
+
+    <script>
+
+    var margin = {top:50, right:50, bottom:50, left:150},
+        stack_w = 820 - margin.left - margin.right,
+        stack_h = 350 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%y-%b-%d").parse;
+    var x = d3.time.scale().range([0, stack_w]);
+    var y = d3.scale.linear().range([stack_h, 0]);
+
+    var color = d3.scale.category10();
+
+    var x_Axis = d3.svg.axis().scale(x).orient("bottom");
+    var y_Axis = d3.svg.axis().scale(y).orient("left");
+
+    var area = d3.svg.area()
+        .x(function(d) { return x(d.date); })
+        .y0(function(d) { return y(d.y0); })
+        .y1(function(d) { return y(d.y0 + d.y); });
+
+    var stack = d3.layout.stack().values(function(d) { return d.values; });
+
+    var stack_svg = d3.select("body").append("svg")
+        .attr("width", stack_w + margin.left + margin.right)
+        .attr("height", stack_h + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Road data from csv file for Graph
+    d3.csv("stack.csv", function(error, data) {
+      color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+      data.forEach(function(d) {
+        d.date = parseDate(d.date);
+      });
+
+      var phones = stack(color.domain().map(function(name) {
+        return {
+          name: name,
+          values: data.map(function(d) {
+            return {date: d.date, y: d[name] * 1};
+          })
+        };
+      }));
+
+      // Find Date with Highest Value
+      var max_date = d3.max(data, function(d){
+        var vals = d3.keys(d).map(function(key){ return key !== "date" ? d[key] : 0 });
+        return d3.sum(vals);
+      });
+
+      // Set Domains for Axis
+      x.domain(d3.extent(data, function(d) { return d.date; }));
+      y.domain([0, max_date])
+
+      //Draw Graph
+      var phone = stack_svg.selectAll(".phone")
+          .data(phones)
+        .enter().append("g")
+          .attr("class", "phone");
+
+      phone.append("path")
+          .attr("class", "area")
+          .attr("d", function(d) { return area(d.values); })
+          .style("fill", function(d) { return color(d.name); });
+
+      phone.append("text")
+          .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+          .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+          .attr("x", -6)
+          .attr("dy", ".35em")
+          .text(function(d) { return d.name; });
+
+      stack_svg.append("g")
+          .attr("class", "x-axis")
+          .attr("transform", "translate(0," + stack_h + ")")
+          .call(x_Axis);
+
+      stack_svg.append("g")
+          .attr("class", "y-axis")
+          .call(y_Axis);
+    });
+
+    </script>
+
+    <script>
+      // Define variables for Graph
+      var margin = {top: 50, right: 50, bottom: 50, left: 150},
+          tree_w = 960 - margin.right - margin.left,
+          tree_h = 600 - margin.top - margin.bottom;
+        
+      var i = 0;
+      var tree = d3.layout.tree().size([tree_h, tree_w]);
+      var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+      var tree_svg = d3.select("body").append("svg")
+        .attr("width", tree_w + margin.right + margin.left)
+        .attr("height", tree_h + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Load the Data from csv file for Tree Graph
+      d3.csv("tree.csv", function(error, data) {
+        var dataMap = data.reduce(function(map, node) {
+          map[node.name] = node;
+          return map;
+        }, {});
+
+        // Create the Data Array for Tree Graph
+        var treeData = [];
+        data.forEach(function(node) {
+          // Add to Parent
+          var parent = dataMap[node.parent];
+          if (parent) {
+            // Create Child Array
+            (parent.children || (parent.children = []))
+              // Add Node to Child Array
+              .push(node);
+          } else {
+            // Parent is Null or No Exsit
+            treeData.push(node);
+          }
+        });
+
+        root = treeData[0];
+        update(root);
+      });
+
+      function update(source) {
+
+        // Compute Tree layout.
+        var nodes = tree.nodes(root).reverse(),
+          links = tree.links(nodes);
+        // Normalize for Fixed-depth.
+        nodes.forEach(function(d) { d.y = d.depth * 100; });
+        // Declare the Nodes
+        var node = tree_svg.selectAll("g.node")
+          .data(nodes, function(d) { return d.id || (d.id = ++i); });
+        // Draw the Nodes.
+        var nodeEnter = node.enter().append("g")
+          .attr("class", "node")
+          .attr("transform", function(d) { 
+            return "translate(" + d.y + "," + d.x + ")"; });
+        nodeEnter.append("circle")
+          .attr("r", 6)
+          .style("fill", "#fff");
+        nodeEnter.append("text").attr("x", function(d) { 
+            return d.children || d._children ? -15 : 15; })
+          .attr("dy", ".30em")
+          .attr("text-anchor", function(d) { 
+            return d.children || d._children ? "end" : "start"; })
+          .text(function(d) { return d.name; })
+          .style("fill-opacity", 0.8);
+        // Declare the links
+        var link = tree_svg.selectAll("path.link").data(links, function(d) { return d.target.id; });
+        link.enter().insert("path", "g").attr("class", "link").attr("d", diagonal);
+      }
+
+    </script>
+
+  </body>
+
+  
+</html>

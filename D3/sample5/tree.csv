@@ -1,0 +1,36 @@
+name,parent
+Mobile Phone,null
+SUMSUNG,Mobile Phone
+Galaxy,SUMSUNG
+Galaxy S7 edge,Galaxy
+Galaxy S7,Galaxy
+Galaxy Tab E 8.0,Galaxy
+Galaxy J1 Nxt,Galaxy
+Gear S2 classic 3G,Galaxy
+Galaxy J1(2016),Galaxy
+Galaxy A9(2016),Galaxy
+Galaxy A7(2016),Galaxy
+Xcover 550,SUMSUNG
+Galaxy A3(2016),SUMSUNG
+Metro 360,SUMSUNG
+Galaxy V,Galaxy
+XIAOMI,Mobile Phone
+Mi Note,XIAOMI
+Mi 4i,XIAOMI
+Redmi,XIAOMI
+Mi Pad,XIAOMI
+NOKIA,Mobile Phone
+230 Dual SIM,NOKIA
+Lumia 638,NOKIA
+Asha 501,NOKIA
+N91,NOKIA
+2652,NOKIA
+N-Gage QD,NOKIA
+7250i,NOKIA
+X2-05,NOKIA
+APPLE,Mobile Phone
+iPhone 6S Plus,APPLE
+iPad Pro,APPLE
+iPad mini 4,APPLE
+Watch Edition,APPLE
+iPad mini Wi-Fi,APPLE
