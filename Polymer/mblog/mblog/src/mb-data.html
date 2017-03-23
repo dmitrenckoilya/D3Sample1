@@ -1,0 +1,167 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="mb-data">
+  <script>
+    (function() {
+
+      var blogs = [
+        {title: 'Taipei', lat: 25.01716, lng: 121.36629, images: ['/images/data/1.jpg', '/images/data/2.jpg'],
+          description: 'Pellentesque egestas a felis at viverra. In congue nunc turpis, quis cursus enim bibendum in. Quisque hendrerit enim eros. Proin et lacus porta, porttitor nunc nec, rhoncus mi. Aliquam erat volutpat. Integer sollicitudin velit dapibus felis malesuada cursus. Maecenas eu rhoncus nisl, in ultricies tortor. Suspendisse ullamcorper nisi turpis, a blandit diam fringilla sit amet. Sed sed molestie magna. Integer ac aliquam justo, nec fringilla nisl. Nunc consequat ligula vitae sem interdum, at pretium augue posuere. Phasellus bibendum ex ut orci vulputate, sed auctor elit interdum. Suspendisse potenti. Fusce mollis metus pulvinar, porttitor augue ac, scelerisque erat. Maecenas nisi ipsum, malesuada ut gravida vitae, finibus sit amet nulla. Nam ut efficitur lectus.\n\nQuisque dolor orci, dapibus at ultrices quis, rutrum in elit. Vestibulum posuere turpis massa, at egestas dolor gravida ac. Sed auctor imperdiet est. Suspendisse mattis blandit elit ut mattis. Aliquam erat volutpat. Maecenas molestie mattis diam vitae tristique. Ut aliquet ligula risus, eu cursus urna accumsan et. Ut pretium vel nisi ac bibendum.'},
+        {title: 'Agricultural leisure farms, Yilan', lat: 24.90731, lng: 121.84810, images: ['/images/data/3.jpg'],
+          description: 'In congue nunc turpis, quis cursus enim bibendum in. \n\nQuisque hendrerit enim eros. Proin et lacus porta, porttitor nunc nec, rhoncus mi. Aliquam erat volutpat. Integer sollicitudin velit dapibus felis malesuada cursus. Maecenas eu rhoncus nisl, in ultricies tortor. Suspendisse ullamcorper nisi turpis, a blandit diam fringilla sit amet. Sed sed molestie magna. Integer ac aliquam justo, nec fringilla nisl. Nunc consequat ligula vitae sem interdum, at pretium augue posuere. Phasellus bibendum ex ut orci vulputate, sed auctor elit interdum. Suspendisse potenti. Fusce mollis metus pulvinar, porttitor augue ac, scelerisque erat. Maecenas nisi ipsum, malesuada ut gravida vitae, finibus sit amet nulla. Nam ut efficitur lectus.'}
+      ];
+
+      var partners = [
+        {title: 'Invernadero De Salvador Bachiller', lat: 40.42261, lng: -3.70981, images: ['/images/data/4.jpg'],
+          description: 'Suspendisse potenti. Fusce mollis metus pulvinar, porttitor augue ac. Quisque dolor orci, dapibus at ultrices quis, rutrum in elit. Vestibulum posuere turpis massa, at egestas dolor gravida ac. Sed auctor imperdiet est. Suspendisse mattis blandit elit ut mattis. Aliquam erat volutpat. Maecenas molestie mattis diam vitae tristique. Ut aliquet ligula risus, eu cursus urna accumsan et. Ut pretium vel nisi ac bibendum.'},
+        {title: 'Gauranga Transcendental Food', lat: 40.41287, lng: -3.7156, images: ['/images/data/5.png', '/images/data/6.png'],
+          description: 'Quisque dolor orci, dapibus at ultrices quis, rutrum in elit. Vestibulum posuere turpis massa, at egestas dolor gravida ac. Sed auctor imperdiet est. Suspendisse mattis blandit elit ut mattis. Aliquam erat volutpat. Maecenas molestie mattis diam vitae tristique. Ut aliquet ligula risus, eu cursus urna accumsan et. Ut pretium vel nisi ac bibendum.'}
+      ];
+
+      var textarea = document.createElement('textarea');
+
+      Polymer({
+
+        is: 'mb-data',
+
+        properties: {
+
+          blogs: {
+            type: Array,
+            readOnly: true,
+            notify: true
+          },
+
+          partners: {
+            type: Array,
+            readOnly: true,
+            notify: true
+          },
+
+          blogId: String,
+
+          partnerId: String,
+
+          blog: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+
+          partner: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+
+          offline: Boolean,
+
+          loading: {
+            type: Boolean,
+            readOnly: true,
+            notify: true
+          },
+
+        },
+
+        observers: [
+          '_fetchBlog(blogId, blogs, offline)',
+          '_fetchPartner(partnerId, partners, offline)'
+        ],
+
+        attached: function() {
+          // Use fake data
+          this._setBlogs(this._parseBlogs(blogs));
+          this._setPartners(this._parsePartners(partners));
+        },
+
+        _parseBlogs: function(response) {
+          var blogs = [];
+
+          for (var i = 0, item; item = response[i]; ++i) {
+            blogs.push({
+              title: this._unescapeText(item.title),
+              id: this._sluggify(this._unescapeText(item.title)),
+              type: 'blog',
+              lat: item.lat,
+              lng: item.lng,
+              images: item.images,
+              description: item.description
+            });
+          }
+
+          return blogs;
+        },
+
+        _parsePartners: function(response) {
+          var partners = [];
+
+          for (var i = 0, item; item = response[i]; ++i) {
+            partners.push({
+              title: this._unescapeText(item.title),
+              id: this._sluggify(this._unescapeText(item.title)),
+              type: 'partner',
+              lat: item.lat,
+              lng: item.lng,
+              images: item.images,
+              description: item.description
+            });
+          }
+
+          return partners;
+        },
+
+        _fetchBlog: function(blogId, blogs, offline) {
+          if (offline || !blogId || !blogs) {
+            this._setBlog(null);
+            // this._setFailure(false);
+            return;
+          }
+
+          var item;
+
+          for (var i = 0, blog; blog = blogs[i]; ++i) {
+            if (blog.id === blogId) {
+              item = blog;
+              break;
+            }
+          }
+
+          this._setBlog(item);
+        },
+
+        _fetchPartner: function(partnerId, partners, offline) {
+          if (offline || !partnerId || !partners) {
+            this._setPartner(null);
+            // this._setFailure(false);
+            return;
+          }
+
+          var item;
+
+          for (var i = 0, partner; partner = partners[i]; ++i) {
+            if (partner.id === partnerId) {
+              item = partner;
+              break;
+            }
+          }
+
+          this._setPartner(item);
+        },
+
+        _sluggify: function(str) {
+          return str.toLowerCase()
+            .replace(/ /g,'-')
+            .replace(/[^\w-]+/g,'');
+        },
+
+        _unescapeText: function(text) {
+          textarea.innerHTML = text;
+          return textarea.textContent;
+        }
+
+      });
+
+    })();
+  </script>
+</dom-module>
